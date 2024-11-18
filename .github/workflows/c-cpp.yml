@@ -8,18 +8,14 @@ on:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Install dependencies
-      run: sudo apt-get install automake autoconf
-    - name: Generate missing files with Automake
-      run: automake --add-missing
-    - name: Run Autoconf
-      run: autoreconf --install
-    - name: Configure project
-      run: ./configure
-    - name: Build project
+    - uses: actions/checkout@v4   
+    - name: configure
+      run: ./configure   
+    - name: make
       run: make
-    - name: Run tests
+    - name: Test
       run: cd ./tests && make check
