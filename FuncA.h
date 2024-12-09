@@ -7,6 +7,7 @@ class FuncA{
 	virtual ~FuncA() {}
 
 	double Calculate(double x, int terms);
+	void TestServer();
 };
 
 #endif
