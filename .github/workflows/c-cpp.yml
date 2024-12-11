@@ -2,43 +2,38 @@ name: C/C++ CI
 
 on:
   push:
-    branches:
-      - branchHTTPserver
+    branches: [ "*" ]
   pull_request:
-    branches:
-      - branchHTTPserver
-
+    branches: [ "*" ]
+  
 jobs:
   build:
-    name: Build and Push Multi-Arch Docker Image
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Review code
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Downloading QEMU
-        uses: docker/setup-qemu-action@v2
-        with:
-          platforms: linux/amd64,linux/arm64
+    - name: QEMU install
+      uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          driver: docker-container
-          buildkitd-flags: --allow-insecure-entitlement security.insecure
+    - name: Install Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    
+    - name: build ls
+      run: docker buildx ls
 
-      - name: Sign in to Docker
-        uses: docker/login-action@v2
-        with:
-          username: ${{ variable.login }}
-          password: ${{ secrets.password }}
+    - name: Log in to dockerhub
+      run: docker login -u ${{ vars.login }} -p ${{ secrets.password }}
 
-      - name: Create and push a Multi-Arch Image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./source
-          file: ./source/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: kleshchenkoyurii686/optimaserver:latest
+    - name: Build Dockerfile image for amd64
+      run: docker build --platform=linux/amd64 -t kleshchenkoyurii686/optimaserver:amd64 --push .
+
+    - name: Build Dockerfile image for arm64
+      run: docker build --platform=linux/arm64 -t kleshchenkoyurii686/optimaserver:arm64 --push .
+
+    - name: Create manifest
+      run: docker manifest create kleshchenkoyurii686/optimaserver --amend kleshchenkoyurii686/optimaserver:amd64 --amend kleshchenkoyurii686/optimaserver:arm64
+
+    - name: Push manifest to docker hub
+      run: docker manifest push kleshchenkoyurii686/optimaserver
