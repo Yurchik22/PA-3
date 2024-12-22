@@ -7,9 +7,8 @@
 #include <string>
 #include "FuncA.h"
 
-
+int CreateHTTPserver();
 int main() {
-    FuncA func;
-    func.TestServer();
+    CreateHTTPserver();
     return 0; 
 }
